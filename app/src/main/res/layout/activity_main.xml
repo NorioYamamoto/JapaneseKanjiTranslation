@@ -6,20 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-5927681014749576/9185518826"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-5927681014749576/9185518826">
-    </com.google.android.gms.ads.AdView>
+        app:layout_constraintTop_toTopOf="parent"></com.google.android.gms.ads.AdView>
     <!-- ads:adUnitId="ca-app-pub-3940256099942544/6300978111" -->
 
     <TextView
@@ -49,18 +46,33 @@
             android:id="@+id/button_trans"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Trans"
-            android:textSize="18sp"
-            android:layout_weight="1"  />
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/button_clear"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Clear"
-            android:textSize="18sp"
-            android:layout_weight="1" />
+            android:textSize="18sp" />
 
+        <Button
+            android:id="@+id/button_paste"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Paste"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/button_setup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Setup"
+            android:textSize="18sp" />
 
     </LinearLayout>
 
@@ -90,7 +102,6 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-
             android:layout_weight="1"
             android:background="@drawable/frame_border">
 
@@ -98,22 +109,22 @@
                 android:id="@+id/textView_hiragana"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:onClick="onClick1"
                 android:text="ひらがな"
-                android:textSize="24sp"/>
+                android:textSize="24sp" />
         </ScrollView>
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-
             android:layout_weight="1"
             android:background="@drawable/frame_border">
-
-
 
             <TextView
                 android:id="@+id/textView_roman"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:onClick="onClick1"
                 android:text="Roman"
                 android:textSize="24sp" />
         </ScrollView>
@@ -121,15 +132,14 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-
             android:layout_weight="1"
-            android:background="@drawable/frame_border"
-            >
+            android:background="@drawable/frame_border">
 
             <TextView
                 android:id="@+id/textView_trans"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:onClick="onClick1"
                 android:text="Your language"
                 android:textSize="24sp" />
 
