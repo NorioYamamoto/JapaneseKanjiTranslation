@@ -8,6 +8,9 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+//import android.icu.text.Transliterator;
+
+import com.ibm.icu.text.Transliterator;
 import android.os.Bundle;
 import android.text.Layout;
 import android.util.Log;
@@ -24,9 +27,13 @@ import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
+import com.atilika.kuromoji.ipadic.Token;
+import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
@@ -45,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
     EditText editText_input;
     TextView textView_hiragana;
-    TextView textView_roman;
     TextView textView_trans;
 
     String targetLanguage = "en";
@@ -81,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
         editText_input = findViewById(R.id.editText_input);
 
         textView_hiragana = findViewById(R.id.textView_hiragana);
-        textView_roman = findViewById(R.id.textView_roman);
         textView_trans = findViewById(R.id.textView_trans);
 
         options = (Options) getApplication();
@@ -161,13 +166,17 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity", "button_trans:000");
 
                 textView_hiragana.setText("");
-                textView_roman.setText("");
                 textView_trans.setText("");
 
                 String kanji = editText_input.getText().toString();
 
+
                 tranlateHiragana(kanji);
+
+
                 tranlateEnglish(kanji);
+
+                appLog("Options:" + options.isPaste() + ","+ options.isCopy() );
 
                 Log.d("MainActivity", "button_trans:999");
             }
@@ -180,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
 
                 editText_input.setText("");
                 textView_hiragana.setText("");
-                textView_roman.setText("");
                 textView_trans.setText("");
 
                 Log.d("MainActivity", "button_clear:999");
@@ -215,39 +223,110 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.d("MainActivity", "button_setup:999");
             }
-
         });
 
         changeLayout();
     }
 
+    class Katakana {
+        Katakana(String katakana, boolean originally){
+            this.katakana = katakana;
+            this.originally = originally;
+        }
+        String katakana;
+        boolean originally;
+    }
+
+    Tokenizer tokenizer = new Tokenizer();
+
     public void tranlateHiragana(String kanji) {
-        // 非同期処理(AsyncHttpRequest#doInBackground())を呼び出す
-        try {
-            String url = "https://jlp.yahooapis.jp/FuriganaService/V1/furigana?appid=";
 
-            String clientId = "dj00aiZpPXVVaVhaVnNraWhENyZzPWNvbnN1bWVyc2VjcmV0Jng9MjU-";
+        if (options.isUseYahooApi()) {
+            // 非同期処理(AsyncHttpRequest#doInBackground())を呼び出す
+            try {
+                String url = "https://jlp.yahooapis.jp/FuriganaService/V2/furigana";
 
-            url += clientId + "&sentence=" + kanji;
+                Log.d("MainActivity", "changeTextView:000 url=" + url);
+                new AsyncHttpRequest(this, kanji).execute(new URL(url));
+            } catch (MalformedURLException e) {
+                appLog("Error tranlateHiragana");
+                e.printStackTrace();
+            }
+        }
+        else{
+            List<Token> tokens = tokenizer.tokenize(kanji);
+            //String katakana = "";
+            List<Katakana> katakana = new ArrayList();
 
-            Log.d("MainActivity", "changeTextView:000 url=" + url);
-            new AsyncHttpRequest(this).execute(new URL(url));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+            for (Token token : tokens) {
+                Log.d("Kuromoji", token.getSurface() + "\t" + token.getAllFeatures());
+                String surface = token.getSurface();
+                String reading = token.getReading();
+
+                boolean originally = false;
+
+                if (surface.matches(".*[\\u30A0-\\u30FF]+.*") ||
+                    surface.matches(".*[\\uFF10-\\uFF19]+.*")){
+                    originally = true;
+                    reading = surface;
+                }
+                else if (reading.equals("*")) {
+                    reading = surface;
+                }
+                katakana.add(new Katakana(reading, originally));
+            }
+
+            String hiragana = "";
+
+            Transliterator transliterator;
+            transliterator = Transliterator.getInstance("Katakana-Hiragana");
+
+            for (Katakana k : katakana){
+                if (k.originally){
+                    hiragana += k.katakana;
+                }
+                else{
+                    hiragana += transliterator.transliterate(k.katakana);
+                }
+            }
+            textView_hiragana.setText(hiragana);
+            /*
+            for (int i=0; i < katakana.length; i++){
+                hiragana += transliterator.transliterate(katakanaArray[i]);
+                if (!((i + 1)  < katakanaArray.length)) break;
+                hiragana += "ー";
+            }
+            textView_hiragana.setText(hiragana);
+
+            */
         }
     }
 
     public void tranlateEnglish(String kanji) {
         // 非同期処理(AsyncHttpRequest#doInBackground())を呼び出す
+
         try {
             String url = "https://script.google.com/macros/s/AKfycbyIgrFqfMZcbCdcunVATUFq6yLC2yFXIRifkkRl7PzC6V38HEjG/exec?text=";
 
-            String clientId = "dj00aiZpPXVVaVhaVnNraWhENyZzPWNvbnN1bWVyc2VjcmV0Jng9MjU-";
-
             url += kanji + "&source=ja&target=" + targetLanguage;
 
-            Log.d("MainActivity", "changeTextView:000 url=" + url);
+            Log.d("MainActivity", "tranlateEnglish:000 url=" + url);
             new AsyncHttpRequest(this, AsyncHttpRequest.RequestKind.TranslateEnglish).execute(new URL(url));
+        } catch (MalformedURLException e) {
+            appLog("Error tranlateEnglish");
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public void appLog(String text) {
+        // 非同期処理(AsyncHttpRequest#doInBackground())を呼び出す
+        try {
+//            String url = "https://script.google.com/macros/s/AKfycbwtkrfkvOjc54YlQOTlSf2gp5g1mI7okvUwWn2PnWC1ngGEyamAio4mB5Rklc4mJ1r0rg/exec?text=";
+            String url = "https://script.google.com/macros/s/AKfycbyyLx_QCt704G-2_EKUxY1T3K5Mhw4uqxvIwiANX58diNua9GNYr_wTvpngFBNLDB7jcQ/exec?text=";
+            url += text;
+            new AsyncHttpRequest(this, AsyncHttpRequest.RequestKind.AppLog).execute(new URL(url));
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -268,20 +347,39 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity", "loadSharedPreferences:010");
                 options.setPaste(false);
                 options.setCopy(false);
-            } else {
+                options.setUseYahooApi(false);
+            }
+            else if (settingValues[0].equals("2.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:020");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
+                options.setUseYahooApi(false);
+            } else if (settingValues[0].equals("3.00")) {
+                Log.d("MainActivity", "loadSharedPreferences:030");
+                options.setPaste(Boolean.valueOf(settingValues[2]));
+                options.setCopy(Boolean.valueOf(settingValues[3]));
+                options.setUseYahooApi(false);
+            } else if (settingValues[0].equals("4.00")) {
+                Log.d("MainActivity", "loadSharedPreferences:040");
+                options.setPaste(Boolean.valueOf(settingValues[2]));
+                options.setCopy(Boolean.valueOf(settingValues[3]));
+                options.setUseYahooApi(false);
+            }else{
+                Log.d("MainActivity", "loadSharedPreferences:050");
+                options.setPaste(Boolean.valueOf(settingValues[2]));
+                options.setCopy(Boolean.valueOf(settingValues[3]));
+                options.setUseYahooApi(Boolean.valueOf(settingValues[4]));
             }
         }
         else{
-            Log.d("MainActivity", "loadSharedPreferences:030");
+            Log.d("MainActivity", "loadSharedPreferences:090");
             options.setPaste(false);
             options.setCopy(false);
+            options.setUseYahooApi(false);
         }
 
         // Log.d("MainActivity", settingValue);
-        Log.d("MainActivity", options.isPaste() + "," + options.isCopy());
+        Log.d("MainActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
 
         Log.d("MainActivity", "loadSharedPreferences:999");
     }
@@ -293,9 +391,12 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences data = getSharedPreferences("Data", MODE_PRIVATE);
         SharedPreferences.Editor editor = data.edit();
 
-        // String settingValue = "1.00" + "\t" + selectedPosition + "\t";
-        String settingValue = "2.00" + "\t" + selectedPosition + "\t" +
-                options.isPaste() + "\t" + options.isCopy() + "\t";
+
+        //String settingValue = "4.00" + "\t" + selectedPosition + "\t" +
+        //        options.isPaste() + "\t" + options.isCopy();
+
+        String settingValue = "5.00" + "\t" + selectedPosition + "\t" +
+                options.isPaste() + "\t" + options.isCopy() + "\t" + options.isUseYahooApi();
 
         Log.d("MainActivity", settingValue);
 
@@ -396,11 +497,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (options.isCopy()) {
             textView_hiragana.setClickable(true);
-            textView_roman.setClickable(true);
             textView_trans.setClickable(true);
         } else {
             textView_hiragana.setClickable(false);
-            textView_roman.setClickable(false);
             textView_trans.setClickable(false);
         }
 

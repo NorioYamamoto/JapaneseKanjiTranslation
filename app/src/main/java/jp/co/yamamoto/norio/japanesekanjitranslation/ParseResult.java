@@ -2,6 +2,8 @@ package jp.co.yamamoto.norio.japanesekanjitranslation;
 
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -22,7 +24,46 @@ public class ParseResult {
     private String roman;
 
     ParseResult(String result) {
+        Log.d("ParseResult", "ParseResult:000");
 
+        try {
+            Log.d("ParseResult", "ParseResult:010 result=" + result);
+            JSONObject json = new JSONObject(result);
+
+            JSONObject item = json.getJSONObject("result");
+
+            JSONArray datas = item.getJSONArray("word");
+
+            furigana = "";
+
+            for (int i = 0; i < datas.length(); i++) {
+                JSONObject data = datas.getJSONObject(i);
+                String furigana ="";
+                if (data.has("furigana")){
+                    furigana = data.getString("furigana");
+                }
+                String surface = data.getString("surface");
+                if (!furigana.isEmpty()){
+                    this.furigana += furigana;
+                }
+                else{
+                    this.furigana += surface;
+                }
+            }
+
+            Log.d("ParseResult", "ParseResult:100 furigana=" + this.furigana);
+
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            Log.d("ParseResult", "ParseResult:e=" + msg);
+            e.printStackTrace();
+        }
+
+    }
+    String getFurigana() {
+        return this.furigana;
+    }
+        /*
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -82,4 +123,6 @@ public class ParseResult {
     String getRoman() {
         return roman;
     }
+
+         */
 }

@@ -37,7 +37,7 @@ public class SetupActivity extends AppCompatActivity {
                 Log.d("SetupActivity", "checkBoxPaste:000");
 
                 options.setPaste(((CheckBox) v).isChecked());
-                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy());
+                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
 
                 Log.d("SetupActivity", "checkBoxPaste:999");
             }
@@ -52,7 +52,22 @@ public class SetupActivity extends AppCompatActivity {
                 Log.d("SetupActivity", "checkBoxCopy:000");
 
                 options.setCopy(((CheckBox) v).isChecked());
-                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy());
+                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
+
+                Log.d("SetupActivity", "checkBoxCopy:999");
+            }
+        });
+
+        CheckBox checkBoxUseYahooApi = findViewById(R.id.checkBoxUseYahooApi);
+        checkBoxUseYahooApi.setChecked(options.isUseYahooApi());
+
+        checkBoxUseYahooApi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("SetupActivity", "checkBoxCopy:000");
+
+                options.setUseYahooApi(((CheckBox) v).isChecked());
+                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
 
                 Log.d("SetupActivity", "checkBoxCopy:999");
             }

@@ -18,6 +18,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textStyle="bold"
+        android:text="Kanji to Hiragana Ver 1.5"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <CheckBox
         android:id="@+id/checkBoxPaste"
         android:layout_width="wrap_content"
@@ -27,7 +39,7 @@
         android:text="Paste from the clipboard into the input area."
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <CheckBox
         android:id="@+id/checkBoxCopy"
@@ -35,9 +47,23 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:gravity="start"
-        android:text="Touch ひらがな, Roman, or Your language to copy to the clipboard."
+        android:text="Touch ひらがな or Your language to copy to the clipboard."
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/checkBoxPaste" />
+
+    <CheckBox
+        android:id="@+id/checkBoxUseYahooApi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="start"
+        android:text="Use Yahoo API.(The Yahoo API is not available in the EEA and the UK.)"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkBoxCopy" />
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
