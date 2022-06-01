@@ -65,7 +65,7 @@ public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
             con = (HttpURLConnection) url.openConnection();
             Log.d("AsyncHttpRequest", "doInBackground:011");
 
-            if (requestKind == RequestKind.TranslateHiragana){
+            if (requestKind == RequestKind.TranslateHiragana) {
                 con.setRequestMethod("POST");
                 con.setDoInput(true);
                 con.setDoOutput(true);
@@ -76,29 +76,26 @@ public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
                 Log.d("AsyncHttpRequest", "doInBackground:011-2");
                 PrintStream ps = new PrintStream(con.getOutputStream());
                 Log.d("AsyncHttpRequest", "doInBackground:011-3");
-                String text = "私は貴方を愛しています";
                 String text1 = this.text.replaceAll("\"", "\\\\\"");
                 Log.d("AsyncHttpRequest", "doInBackground:011-4 text1=" + text1);
                 String text2 = "\"" + text1 + "\"";
 
-                // "\"q\": " + "\"私は貴方を愛しています\""+ "," +
                 String json =
                         "{" +
-                          "\"id\": \"1234-1\"," +
-                          "\"jsonrpc\": \"2.0\"," +
-                          "\"method\": \"jlp.furiganaservice.furigana\"," +
-                          "\"params\": {" +
-                            "\"q\": " +  text2 + "," +
-                            "\"grade\": 1" +
-                          "}" +
-                        "}" ;
+                                "\"id\": \"1234-1\"," +
+                                "\"jsonrpc\": \"2.0\"," +
+                                "\"method\": \"jlp.furiganaservice.furigana\"," +
+                                "\"params\": {" +
+                                "\"q\": " + text2 + "," +
+                                "\"grade\": 0" +
+                                "}" +
+                                "}";
 
                 Log.d("AsyncHttpRequest", "doInBackground:011-3 json=" + json);
                 ps.print(json);
                 ps.close();
                 Log.d("AsyncHttpRequest", "doInBackground:011-9");
-            }
-            else{
+            } else {
                 con.setRequestMethod("GET");
                 con.connect();
             }
@@ -106,7 +103,7 @@ public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
             Log.d("AsyncHttpRequest", "doInBackground:012");
             // リダイレクトを自動で許可しない設定
 //            con.setInstanceFollowRedirects(false);
-           // con.connect();
+            // con.connect();
             Log.d("AsyncHttpRequest", "doInBackground:013");
 
             final int statusCode = con.getResponseCode();
@@ -171,6 +168,10 @@ public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
                 Log.d("AsyncHttpRequest", "doInBackground:072=" + parseResult.getFurigana());
                 TextView textView_hiragana = mainActivity.findViewById(R.id.textView_hiragana);
                 textView_hiragana.setText(parseResult.getFurigana());
+
+                TextView textView_roman = mainActivity.findViewById(R.id.textView_roman);
+                textView_roman.setText(parseResult.getRoman());
+                String hoge = parseResult.getRoman();
                 break;
             case TranslateEnglish:
                 TextView textView_trans = mainActivity.findViewById(R.id.textView_trans);

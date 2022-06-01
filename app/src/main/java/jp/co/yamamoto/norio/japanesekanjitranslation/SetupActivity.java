@@ -72,5 +72,20 @@ public class SetupActivity extends AppCompatActivity {
                 Log.d("SetupActivity", "checkBoxCopy:999");
             }
         });
+
+        CheckBox checkBoxUseRoman = findViewById(R.id.checkBoxUseRoman);
+        checkBoxUseRoman.setChecked(options.isUseRoman());
+
+        checkBoxUseRoman.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("SetupActivity", "checkBoxCopy:000");
+
+                options.setUseRoman(((CheckBox) v).isChecked());
+                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
+
+                Log.d("SetupActivity", "checkBoxCopy:999");
+            }
+        });
     }
 }

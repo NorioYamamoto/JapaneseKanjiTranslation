@@ -1,5 +1,7 @@
 package jp.co.yamamoto.norio.japanesekanjitranslation;
 
+import static java.net.URLEncoder.encode;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ActionBar;
@@ -11,6 +13,7 @@ import android.content.SharedPreferences;
 //import android.icu.text.Transliterator;
 
 import com.ibm.icu.text.Transliterator;
+
 import android.os.Bundle;
 import android.text.Layout;
 import android.util.Log;
@@ -21,10 +24,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -52,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText editText_input;
     TextView textView_hiragana;
+    TextView textView_roman;
     TextView textView_trans;
 
     String targetLanguage = "en";
@@ -61,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     Context context = this;
     ClipboardManager clipboardManager = null;
     Options options;
+
+    String appVersion = "1.6";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         editText_input = findViewById(R.id.editText_input);
 
         textView_hiragana = findViewById(R.id.textView_hiragana);
+        textView_roman = findViewById(R.id.textView_roman);
         textView_trans = findViewById(R.id.textView_trans);
 
         options = (Options) getApplication();
@@ -166,17 +175,26 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity", "button_trans:000");
 
                 textView_hiragana.setText("");
+                textView_roman.setText("");
                 textView_trans.setText("");
 
                 String kanji = editText_input.getText().toString();
 
-
                 tranlateHiragana(kanji);
 
+                try {
+                    tranlateEnglish(kanji);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    appLog("Error tranlateEnglish,UnsupportedEncodingException");
+                }
 
-                tranlateEnglish(kanji);
-
-                appLog("Options:" + options.isPaste() + ","+ options.isCopy() );
+                appLog(appVersion + ","
+                        + selectedPosition + ","
+                        + options.isPaste() + ","
+                        + options.isCopy() + ","
+                        + options.isUseYahooApi() + ","
+                        + options.isUseRoman());
 
                 Log.d("MainActivity", "button_trans:999");
             }
@@ -189,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
 
                 editText_input.setText("");
                 textView_hiragana.setText("");
+                textView_roman.setText("");
                 textView_trans.setText("");
 
                 Log.d("MainActivity", "button_clear:999");
@@ -229,10 +248,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class Katakana {
-        Katakana(String katakana, boolean originally){
+        Katakana(String katakana, boolean originally) {
             this.katakana = katakana;
             this.originally = originally;
         }
+
         String katakana;
         boolean originally;
     }
@@ -252,8 +272,7 @@ public class MainActivity extends AppCompatActivity {
                 appLog("Error tranlateHiragana");
                 e.printStackTrace();
             }
-        }
-        else{
+        } else {
             List<Token> tokens = tokenizer.tokenize(kanji);
             //String katakana = "";
             List<Katakana> katakana = new ArrayList();
@@ -265,12 +284,12 @@ public class MainActivity extends AppCompatActivity {
 
                 boolean originally = false;
 
-                if (surface.matches(".*[\\u30A0-\\u30FF]+.*") ||
-                    surface.matches(".*[\\uFF10-\\uFF19]+.*")){
+                // カタカタと全角数字はひらがなに変換しない。
+                if (surface.matches(".*[\\u30A0-\\u30FF]+$") ||
+                        surface.matches(".*[\\uFF10-\\uFF19]+$")) {
                     originally = true;
                     reading = surface;
-                }
-                else if (reading.equals("*")) {
+                } else if (reading.equals("*")) {
                     reading = surface;
                 }
                 katakana.add(new Katakana(reading, originally));
@@ -278,35 +297,37 @@ public class MainActivity extends AppCompatActivity {
 
             String hiragana = "";
 
-            Transliterator transliterator;
-            transliterator = Transliterator.getInstance("Katakana-Hiragana");
+            Transliterator tl1 = Transliterator.getInstance("Katakana-Hiragana");
+            Transliterator tl2 = Transliterator.getInstance("Katakana-Latin");
 
-            for (Katakana k : katakana){
-                if (k.originally){
+            for (Katakana k : katakana) {
+                if (k.originally) {
                     hiragana += k.katakana;
-                }
-                else{
-                    hiragana += transliterator.transliterate(k.katakana);
+                } else {
+                    hiragana += tl1.transliterate(k.katakana);
                 }
             }
-            textView_hiragana.setText(hiragana);
-            /*
-            for (int i=0; i < katakana.length; i++){
-                hiragana += transliterator.transliterate(katakanaArray[i]);
-                if (!((i + 1)  < katakanaArray.length)) break;
-                hiragana += "ー";
-            }
+
             textView_hiragana.setText(hiragana);
 
-            */
+            if (options.isUseRoman()) {
+                String roman = "";
+                for (Katakana k : katakana) {
+                    roman += tl2.transliterate(k.katakana) + " ";
+                }
+                textView_roman.setText(roman);
+                Log.d("Kuromoji", roman);
+            }
         }
     }
 
-    public void tranlateEnglish(String kanji) {
+    public void tranlateEnglish(String kanji) throws UnsupportedEncodingException {
         // 非同期処理(AsyncHttpRequest#doInBackground())を呼び出す
 
         try {
             String url = "https://script.google.com/macros/s/AKfycbyIgrFqfMZcbCdcunVATUFq6yLC2yFXIRifkkRl7PzC6V38HEjG/exec?text=";
+
+            kanji = encode(kanji, "UTF-8");
 
             url += kanji + "&source=ja&target=" + targetLanguage;
 
@@ -316,8 +337,6 @@ public class MainActivity extends AppCompatActivity {
             appLog("Error tranlateEnglish");
             e.printStackTrace();
         }
-
-
     }
 
     public void appLog(String text) {
@@ -348,38 +367,46 @@ public class MainActivity extends AppCompatActivity {
                 options.setPaste(false);
                 options.setCopy(false);
                 options.setUseYahooApi(false);
-            }
-            else if (settingValues[0].equals("2.00")) {
+                options.setUseRoman(false);
+            } else if (settingValues[0].equals("2.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:020");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
                 options.setUseYahooApi(false);
+                options.setUseRoman(false);
             } else if (settingValues[0].equals("3.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:030");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
                 options.setUseYahooApi(false);
+                options.setUseRoman(false);
             } else if (settingValues[0].equals("4.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:040");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
                 options.setUseYahooApi(false);
-            }else{
+                options.setUseRoman(false);
+            } else if (settingValues[0].equals("5.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:050");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
                 options.setUseYahooApi(Boolean.valueOf(settingValues[4]));
+                options.setUseRoman(false);
+            } else { // 6.00
+                Log.d("MainActivity", "loadSharedPreferences:060");
+                options.setPaste(Boolean.valueOf(settingValues[2]));
+                options.setCopy(Boolean.valueOf(settingValues[3]));
+                options.setUseYahooApi(Boolean.valueOf(settingValues[4]));
+                options.setUseRoman(Boolean.valueOf(settingValues[5]));
             }
-        }
-        else{
+
+        } else {
             Log.d("MainActivity", "loadSharedPreferences:090");
             options.setPaste(false);
             options.setCopy(false);
             options.setUseYahooApi(false);
+            options.setUseRoman(false);
         }
-
-        // Log.d("MainActivity", settingValue);
-        Log.d("MainActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
 
         Log.d("MainActivity", "loadSharedPreferences:999");
     }
@@ -395,8 +422,9 @@ public class MainActivity extends AppCompatActivity {
         //String settingValue = "4.00" + "\t" + selectedPosition + "\t" +
         //        options.isPaste() + "\t" + options.isCopy();
 
-        String settingValue = "5.00" + "\t" + selectedPosition + "\t" +
-                options.isPaste() + "\t" + options.isCopy() + "\t" + options.isUseYahooApi();
+        String settingValue = "6.00" + "\t" + selectedPosition + "\t" +
+                options.isPaste() + "\t" + options.isCopy() + "\t" +
+                options.isUseYahooApi() + "\t" + options.isUseRoman();
 
         Log.d("MainActivity", settingValue);
 
@@ -440,8 +468,6 @@ public class MainActivity extends AppCompatActivity {
 
     void changeLayout() {
         Log.d("MainActivity", "layoutChange:000");
-
-        Log.d("MainActivity", options.isPaste() + "," + options.isCopy());
 
         LinearLayout.LayoutParams params;
 
@@ -497,11 +523,23 @@ public class MainActivity extends AppCompatActivity {
 
         if (options.isCopy()) {
             textView_hiragana.setClickable(true);
+            textView_roman.setClickable(true);
             textView_trans.setClickable(true);
         } else {
             textView_hiragana.setClickable(false);
+            textView_roman.setClickable(false);
             textView_trans.setClickable(false);
         }
+
+        ScrollView scrollView_roman = findViewById(R.id.scrollView_roman);
+        int weight = 0;
+        if (options.isUseRoman()) {
+            weight = 1;
+        }
+
+        LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) scrollView_roman.getLayoutParams();
+        layout.weight = weight;
+        scrollView_roman.setLayoutParams(layout);
 
         Log.d("MainActivity", "layoutChange:999");
     }
