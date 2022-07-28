@@ -23,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Kanji to Hiragana Ver 1.6"
+        android:text="Kanji to Hiragana Ver 1.7"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -73,5 +73,17 @@
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/checkBoxUseYahooApi" />
+
+
+    <CheckBox
+        android:id="@+id/checkBoxRemoveSpace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="start"
+        android:text="Process after removing the space internally."
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkBoxUseRoman" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

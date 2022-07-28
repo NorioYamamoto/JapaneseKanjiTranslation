@@ -35,8 +35,17 @@ public class Options extends Application {
         this.useRoman = useRoman;
     }
 
+    public boolean isRemoveSpace() {
+        return removeSpace;
+    }
+
+    public void setRemoveSpace(boolean removeSpace) {
+        this.removeSpace = removeSpace;
+    }
+
     private boolean paste = false;
     private boolean copy = false;
     private boolean useYahooApi = false;
     private boolean useRoman = false;
+    private boolean removeSpace = false;
 }

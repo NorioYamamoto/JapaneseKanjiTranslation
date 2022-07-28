@@ -180,6 +180,11 @@ public class MainActivity extends AppCompatActivity {
 
                 String kanji = editText_input.getText().toString();
 
+                if (options.isRemoveSpace()){
+                    kanji = kanji.replaceAll(" ", ""); // 半角スペース
+                    kanji = kanji.replaceAll("　", ""); // 全角スペース
+                }
+
                 tranlateHiragana(kanji);
 
                 try {
@@ -368,44 +373,57 @@ public class MainActivity extends AppCompatActivity {
                 options.setCopy(false);
                 options.setUseYahooApi(false);
                 options.setUseRoman(false);
+                options.setRemoveSpace(false);
             } else if (settingValues[0].equals("2.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:020");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
                 options.setUseYahooApi(false);
                 options.setUseRoman(false);
+                options.setRemoveSpace(false);
             } else if (settingValues[0].equals("3.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:030");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
                 options.setUseYahooApi(false);
                 options.setUseRoman(false);
+                options.setRemoveSpace(false);
             } else if (settingValues[0].equals("4.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:040");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
                 options.setUseYahooApi(false);
                 options.setUseRoman(false);
+                options.setRemoveSpace(false);
             } else if (settingValues[0].equals("5.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:050");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
                 options.setUseYahooApi(Boolean.valueOf(settingValues[4]));
                 options.setUseRoman(false);
-            } else { // 6.00
+                options.setRemoveSpace(false);
+            } else if (settingValues[0].equals("6.00")) {
                 Log.d("MainActivity", "loadSharedPreferences:060");
                 options.setPaste(Boolean.valueOf(settingValues[2]));
                 options.setCopy(Boolean.valueOf(settingValues[3]));
                 options.setUseYahooApi(Boolean.valueOf(settingValues[4]));
                 options.setUseRoman(Boolean.valueOf(settingValues[5]));
+                options.setRemoveSpace(false);
+            } else { // 7.00
+                Log.d("MainActivity", "loadSharedPreferences:060");
+                options.setPaste(Boolean.valueOf(settingValues[2]));
+                options.setCopy(Boolean.valueOf(settingValues[3]));
+                options.setUseYahooApi(Boolean.valueOf(settingValues[4]));
+                options.setUseRoman(Boolean.valueOf(settingValues[5]));
+                options.setRemoveSpace(Boolean.valueOf(settingValues[6]));
             }
-
         } else {
             Log.d("MainActivity", "loadSharedPreferences:090");
             options.setPaste(false);
             options.setCopy(false);
             options.setUseYahooApi(false);
             options.setUseRoman(false);
+            options.setRemoveSpace(false);
         }
 
         Log.d("MainActivity", "loadSharedPreferences:999");
@@ -418,13 +436,12 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences data = getSharedPreferences("Data", MODE_PRIVATE);
         SharedPreferences.Editor editor = data.edit();
 
-
-        //String settingValue = "4.00" + "\t" + selectedPosition + "\t" +
-        //        options.isPaste() + "\t" + options.isCopy();
-
-        String settingValue = "6.00" + "\t" + selectedPosition + "\t" +
-                options.isPaste() + "\t" + options.isCopy() + "\t" +
-                options.isUseYahooApi() + "\t" + options.isUseRoman();
+        String settingValue = "7.00" + "\t" + selectedPosition + "\t" +
+                options.isPaste() + "\t" +
+                options.isCopy() + "\t" +
+                options.isUseYahooApi() + "\t" +
+                options.isUseRoman() + "\t" +
+                options.isRemoveSpace();
 
         Log.d("MainActivity", settingValue);
 

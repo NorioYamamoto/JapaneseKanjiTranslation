@@ -26,66 +26,51 @@ public class SetupActivity extends AppCompatActivity {
         });
 
         options = (Options) getApplication();
-        Log.d("SetupActivity", options.isPaste() + "," + options.isCopy());
 
         CheckBox checkBoxPaste = findViewById(R.id.checkBoxPaste);
         checkBoxPaste.setChecked(options.isPaste());
-
         checkBoxPaste.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("SetupActivity", "checkBoxPaste:000");
-
                 options.setPaste(((CheckBox) v).isChecked());
-                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
-
-                Log.d("SetupActivity", "checkBoxPaste:999");
             }
         });
 
         CheckBox checkBoxCopy = findViewById(R.id.checkBoxCopy);
         checkBoxCopy.setChecked(options.isCopy());
-
         checkBoxCopy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("SetupActivity", "checkBoxCopy:000");
-
                 options.setCopy(((CheckBox) v).isChecked());
-                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
-
-                Log.d("SetupActivity", "checkBoxCopy:999");
             }
         });
 
         CheckBox checkBoxUseYahooApi = findViewById(R.id.checkBoxUseYahooApi);
         checkBoxUseYahooApi.setChecked(options.isUseYahooApi());
-
         checkBoxUseYahooApi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("SetupActivity", "checkBoxCopy:000");
-
                 options.setUseYahooApi(((CheckBox) v).isChecked());
-                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
-
-                Log.d("SetupActivity", "checkBoxCopy:999");
             }
         });
 
         CheckBox checkBoxUseRoman = findViewById(R.id.checkBoxUseRoman);
         checkBoxUseRoman.setChecked(options.isUseRoman());
-
         checkBoxUseRoman.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("SetupActivity", "checkBoxCopy:000");
-
                 options.setUseRoman(((CheckBox) v).isChecked());
-                Log.d("SetupActivity", options.isPaste() + "," + options.isCopy() + "," + options.isUseYahooApi());
-
-                Log.d("SetupActivity", "checkBoxCopy:999");
             }
         });
+
+        CheckBox checkBoxRemoveSpace = findViewById(R.id.checkBoxRemoveSpace);
+        checkBoxRemoveSpace.setChecked(options.isRemoveSpace());
+        checkBoxRemoveSpace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                options.setRemoveSpace(((CheckBox) v).isChecked());
+            }
+        });
+
     }
 }
